@@ -13,13 +13,15 @@ class _NewCalcPageState extends State<NewCalcPage> {
 
   final _calcformkey = GlobalKey<FormState>();
 
-  String? name = '';
-  String? category = '';
-  double? fabric = 0;
-  double? lining = 0;
-  double? accessories = 0;
-  double? laborHours = 0;
-  double? transportMisc = 0;
+  Map<String, dynamic> input = {
+    'outfitName': '',
+    'category': '',
+    'fabric': 0,
+    'lining': 0,
+    'accessories': 0,
+    'laborHours': 0,
+    'transportMisc': 0
+  };
 
 	@override
 	Widget build(BuildContext context) {
@@ -37,23 +39,23 @@ class _NewCalcPageState extends State<NewCalcPage> {
             children: [
               Text('Job Details'),
               SizedBox(height: 20),
-              _buildTextField('Outfit Name', name),
+              _buildTextField('Outfit Name', 'outfitName'),
               SizedBox(height: 20),
-              _buildTextField('Category', category),
+              _buildTextField('Category', 'category'),
               SizedBox(height: 20),
               Text('Material Costs'),
               SizedBox(height: 20),
-              _buildNumberField('Fabric', fabric),
+              _buildNumberField('Fabric', 'fabric'),
               SizedBox(height: 20),
-              _buildNumberField('Lining', lining),
+              _buildNumberField('Lining', 'lining'),
               SizedBox(height: 20),
-              _buildNumberField('Accessories', accessories),
+              _buildNumberField('Accessories', 'accessories'),
               SizedBox(height: 20),
               Text('Labor & Overhead'),
               SizedBox(height: 20),
-              _buildNumberField('Labor Hours', laborHours),
+              _buildNumberField('Labor Hours', 'laborHours'),
               SizedBox(height: 20),
-              _buildNumberField('Transport/Misc', transportMisc),
+              _buildNumberField('Transport/Misc', 'transportMisc'),
               SizedBox(height: 20),
               _buildCalculateButton(),
             ],
@@ -70,7 +72,7 @@ class _NewCalcPageState extends State<NewCalcPage> {
         border: OutlineInputBorder()
       ),
       validator: (value) => value!.isEmpty || value.length > 60 ? '1-60 chars' : null,
-      onChanged:(newValue) => value = newValue,
+      onChanged:(newValue) => input[value] = newValue,
     );
   }
 
@@ -85,9 +87,7 @@ class _NewCalcPageState extends State<NewCalcPage> {
         FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
       ],
       validator: (value) => double.tryParse(value!) == null || double.parse(value) < 0 ? 'Valid number >= 0' : null,
-      onChanged:(newValue) {
-        value = double.parse(newValue);
-      }
+      onChanged:(newValue) => input[value] = double.parse(newValue)
     );
   }
 
@@ -117,8 +117,10 @@ class _NewCalcPageState extends State<NewCalcPage> {
   }
   
   Map<String, dynamic> _calculate() {
-    debugPrint(fabric.toString());
-    double materialsTotal = fabric! + lining! + accessories!;
+    double fabric = input['fabric'];
+    double lining = input['lining'];
+    double accessories = input['accessories'];
+    double materialsTotal = fabric + lining + accessories;
     // double laborTotal = laborHours! * laborRate;
     // double overheadTotal = transportMisc! + overhead;
     // double costTotal = materialsTotal + laborTotal + overheadTotal;
