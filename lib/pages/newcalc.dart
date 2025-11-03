@@ -13,6 +13,14 @@ class _NewCalcPageState extends State<NewCalcPage> {
 
   final _calcformkey = GlobalKey<FormState>();
 
+  String? name = '';
+  String? category = '';
+  double? fabric = 0;
+  double? lining = 0;
+  double? accessories = 0;
+  double? laborHours = 0;
+  double? transportMisc = 0;
+
 	@override
 	Widget build(BuildContext context) {
 		return Scaffold(
@@ -29,106 +37,101 @@ class _NewCalcPageState extends State<NewCalcPage> {
             children: [
               Text('Job Details'),
               SizedBox(height: 20),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Outfit Name',
-                  border: OutlineInputBorder()
-                ),
-                validator: (value) => value!.isEmpty || value.length > 60 ? '1-60 chars' : null,
-              ),
+              _buildTextField('Outfit Name', name),
               SizedBox(height: 20),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Category',
-                  border: OutlineInputBorder()
-                ),
-              ),
+              _buildTextField('Category', category),
               SizedBox(height: 20),
               Text('Material Costs'),
               SizedBox(height: 20),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Fabric',
-                  border: OutlineInputBorder()
-                ),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
-                ],
-                validator: (value) => double.tryParse(value!) == null || double.parse(value) < 0 ? 'Valid number >= 0' : null,
-              ),
+              _buildNumberField('Fabric', fabric),
               SizedBox(height: 20),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Lining',
-                  border: OutlineInputBorder()
-                ),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
-                ],
-                validator: (value) => double.tryParse(value!) == null || double.parse(value) < 0 ? 'Valid number >= 0' : null,
-              ),
+              _buildNumberField('Lining', lining),
               SizedBox(height: 20),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Accessories',
-                  border: OutlineInputBorder()
-                ),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
-                ],
-                validator: (value) => double.tryParse(value!) == null || double.parse(value) < 0 ? 'Valid number >= 0' : null,
-              ),
+              _buildNumberField('Accessories', accessories),
               SizedBox(height: 20),
               Text('Labor & Overhead'),
               SizedBox(height: 20),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Talior Hours',
-                  border: OutlineInputBorder()
-                ),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
-                ],
-                validator: (value) => double.tryParse(value!) == null || double.parse(value) < 0 ? 'Valid number >= 0' : null,
-              ),
+              _buildNumberField('Labor Hours', laborHours),
               SizedBox(height: 20),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Transport/Misc.',
-                  border: OutlineInputBorder()
-                ),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
-                ],
-                validator: (value) => double.tryParse(value!) == null || double.parse(value) < 0 ? 'Valid number >= 0' : null,
-              ),
+              _buildNumberField('Transport/Misc', transportMisc),
               SizedBox(height: 20),
-              MaterialButton(
-                color: Colors.blue,
-                textColor: Colors.white,
-                minWidth: 100,
-                height: 50,
-                onPressed: () => {
-                  if (_calcformkey.currentState!.validate()) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ResultPage()
-                      )
-                    )
-                  },
-                },
-                child: Text('Calculate Price')
-              )
+              _buildCalculateButton(),
             ],
           )
 				),
 			),
 		);
 	}
+
+  Widget _buildTextField(title, value) { // Text Field Widget
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: title,
+        border: OutlineInputBorder()
+      ),
+      validator: (value) => value!.isEmpty || value.length > 60 ? '1-60 chars' : null,
+      onChanged:(newValue) => value = newValue,
+    );
+  }
+
+  Widget _buildNumberField(title, value) { // Number Field Widget
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: title,
+        border: OutlineInputBorder()
+      ),
+      keyboardType: TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
+      ],
+      validator: (value) => double.tryParse(value!) == null || double.parse(value) < 0 ? 'Valid number >= 0' : null,
+      onChanged:(newValue) {
+        value = double.parse(newValue);
+      }
+    );
+  }
+
+  Widget _buildCalculateButton() {
+    return MaterialButton(
+      color: Colors.blue,
+      textColor: Colors.white,
+      minWidth: 100,
+      height: 50,
+      onPressed: () => {
+        if (_calcformkey.currentState!.validate()) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) {
+                debugPrint(_calculate()['materialsTotal'].toString());
+                return ResultPage(
+                  result: _calculate()
+                );
+              }
+            )
+          )
+        },
+      },
+      child: Text('Calculate Price')
+    );
+  }
+  
+  Map<String, dynamic> _calculate() {
+    debugPrint(fabric.toString());
+    double materialsTotal = fabric! + lining! + accessories!;
+    // double laborTotal = laborHours! * laborRate;
+    // double overheadTotal = transportMisc! + overhead;
+    // double costTotal = materialsTotal + laborTotal + overheadTotal;
+    // double sellingPrice = costTotal * (profitMarginPct / 100);
+    // double profitAmount = sellingPrice - costTotal;
+
+    return {
+      'materialsTotal': materialsTotal,
+      // 'laborTotal': laborTotal,
+      // 'overheadTotal': overheadTotal,
+      // 'costTotal': costTotal,
+      // 'sellingPrice': sellingPrice,
+      // 'profitAmount': profitAmount
+    };
+  }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ResultPage extends StatefulWidget {
-	const ResultPage({super.key});
+	const ResultPage({super.key, required this.result});
+
+  final Map<String, dynamic> result;
 
 	@override
 	State<ResultPage> createState() => _ResultPageState();
