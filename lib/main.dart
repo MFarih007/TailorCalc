@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 // import 'package:tailor_calc/settings.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+import 'package:tailor_calc/pages/newcalc.dart';
+import 'package:tailor_calc/pages/pricinghistory.dart';
+import 'package:tailor_calc/pages/settings.dart';
+import 'package:tailor_calc/pages/templatelibrary.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,11 +20,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      // theme: ThemeData(
-      //   // primaryColor: Color(0xFF001F3F),
-      //   primarySwatch: Colors.blue,
-      // ),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
       home: const HomeScreen(title: 'TailorCalc'),
     );
   }
@@ -56,12 +59,79 @@ class _HomeScreenState extends State<HomeScreen> {
     // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // title: Text(widget.title),
+        foregroundColor: Colors.white,
         backgroundColor: Colors.blue,
+
+        title: Text('Home'),
+        actions: [
+          IconButton(
+            // color: Colors.white,
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => SettingsPage()
+              )
+            ),
+            icon: const Icon(Icons.settings),
+            tooltip: 'Settings',
+          ),
+        ]
       ),
-      body: Center(
-        child: Column(
-        ),
+      body: ListView(
+        padding: const EdgeInsets.all(30.0),
+        children: [
+          MaterialButton(
+            color: Colors.blue,
+            textColor: Colors.white,
+            minWidth: 100,
+            height: 100,
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => NewCalcPage()
+              )
+            ),
+            child: Column(
+              children: [
+                Icon(Icons.add),
+                Text('New Calculation')
+              ]
+            )
+          ),
+          SizedBox(height: 30),
+          MaterialButton(
+            color: Colors.blue,
+            textColor: Colors.white,
+            minWidth: 100,
+            height: 100,
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => TemplateLibraryPage()
+              )
+            ),
+            child: Column(
+              children: [
+                Icon(Icons.folder),
+                Text('Saved Templates')
+              ]
+            )
+          ),
+          SizedBox(height: 30),
+          MaterialButton(
+            color: Colors.blue,
+            textColor: Colors.white,
+            minWidth: 100,
+            height: 100,
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PricingHistoryPage()
+              )
+            ),
+            child: Text('Campicay Ofum')
+          )
+        ]
       ),
     );
   }
