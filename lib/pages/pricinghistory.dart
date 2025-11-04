@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tailor_calc/database/price_database.dart';
+import 'package:tailor_calc/models/pricinghistoryrecord.dart';
 
 class PricingHistoryPage extends StatefulWidget {
 	const PricingHistoryPage({super.key});
@@ -8,6 +10,22 @@ class PricingHistoryPage extends StatefulWidget {
 }
 
 class _PricingHistoryPageState extends State<PricingHistoryPage> {
+
+  final PriceDatabase db = PriceDatabase();
+  List<PricingHistoryRecord> histories = [];
+
+  Future<void> loadHistory() async {
+    final histories = await db.readAllHistory();
+    setState(() {
+      this.histories = histories;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadHistory();
+  }
 
 	@override
 	Widget build(BuildContext context) {
@@ -40,21 +58,31 @@ class _PricingHistoryPageState extends State<PricingHistoryPage> {
                 DataColumn(
                   label: Expanded(
                     child: Text(
+                      'Price',
+                    )
+                  )
+                ),
+                DataColumn(
+                  label: Expanded(
+                    child: Text(
                       'Margin',
                     )
                   )
                 ),
               ],
-              rows: const <DataRow> [
-                DataRow(
-                  cells: <DataCell> [
-                    DataCell(Text('11/08/2025')),
-                    DataCell(Text('Manis')),
-                    DataCell(Text('17,700%'))
+              rows: histories.map((item) {
+                return DataRow(
+                  cells: [
+                    DataCell(Text(item.createdAt.toString())),
+                    DataCell(Text(item.outfitName)),
+                    DataCell(Text(item.computed.sellingPrice.toString())),
+                    DataCell(Text(item.inputs.profitMarginPct.toString()))
                   ]
-                ),
-              ]
+                );
+              }).toList()
             ),
+            // Text('No Pricing History'),
+            ?histories.isEmpty ? Text('No Pricing History', textAlign: TextAlign.center) : null,
             SizedBox(height: 30),
             MaterialButton(
               color: Colors.blue,

@@ -1,14 +1,16 @@
 class PricingHistoryRecord {
-  final String id;
-  final DateTime createdAt;
-  final String outfitName;
-  final String category;
-  final String currency;
-  final Inputs inputs;
-  final Computed computed;
+  int? id;
+  String historyId;
+  DateTime createdAt;
+  String outfitName;
+  String category;
+  String currency;
+  Inputs inputs;
+  Computed computed;
 
   PricingHistoryRecord({
-    required this.id,
+    this.id,
+    required this.historyId,
     required this.createdAt,
     required this.outfitName,
     required this.category,
@@ -20,6 +22,7 @@ class PricingHistoryRecord {
   factory PricingHistoryRecord.fromJson(Map<String, dynamic> json) {
     return PricingHistoryRecord(
       id: json['id'],
+      historyId: json['historyId'],
       createdAt: DateTime.parse(json['createdAt']),
       outfitName: json['outfitName'],
       category: json['category'],
@@ -32,6 +35,7 @@ class PricingHistoryRecord {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'historyId': historyId,
       'createdAt': createdAt.toIso8601String(),
       'outfitName': outfitName,
       'category': category,
@@ -39,18 +43,6 @@ class PricingHistoryRecord {
       'inputs': inputs.toJson(),
       'computed': computed.toJson(),
     };
-  }
-
-  PricingHistoryRecord calculate() {
-    return PricingHistoryRecord(
-      id: id,
-      createdAt: createdAt,
-      outfitName: outfitName,
-      category: category,
-      currency: currency,
-      inputs: inputs,
-      computed: Computed.calculate(inputs)
-    );
   }
 }
 
@@ -139,23 +131,5 @@ class Computed {
       'profitAmount': profitAmount,
       'sellingPrice': sellingPrice,
     };
-  }
-
-  factory Computed.calculate(Inputs inputs) {
-    final materialsTotal = inputs.fabric + inputs.lining + inputs.accessories;
-    final laborTotal = inputs.laborHours * inputs.laborRate;
-    final overheadTotal = inputs.transportMisc + inputs.overhead;
-    final costTotal = materialsTotal + laborTotal + overheadTotal;
-    final sellingPrice = costTotal * (inputs.profitMarginPct / 100);
-    final profitAmount = sellingPrice - costTotal;
-
-    return Computed(
-      materialsTotal: materialsTotal,
-      laborTotal: laborTotal,
-      overheadTotal: overheadTotal,
-      costTotal: costTotal,
-      profitAmount: profitAmount,
-      sellingPrice: sellingPrice,
-    );
   }
 }
