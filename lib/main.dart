@@ -7,12 +7,25 @@ import 'package:tailor_calc/pages/settings.dart';
 import 'package:tailor_calc/pages/templatelibrary.dart';
 import 'package:tailor_calc/database/price_database.dart';
 import 'package:tailor_calc/models/pricinghistoryrecord.dart';
+import 'package:device_preview/device_preview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Settings.init(cacheProvider: SharePreferenceCache());
 
-  runApp(const MyApp());
+  bool preview_mode = true;
+
+  if (preview_mode) {
+    runApp(
+      DevicePreview(
+        builder: (context) => const MyApp()
+      )
+    );
+  } else {
+    runApp(
+      const MyApp()
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
