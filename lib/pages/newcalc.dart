@@ -4,7 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:tailor_calc/utils/settings_helper.dart';
 
 class NewCalcPage extends StatefulWidget {
-	const NewCalcPage({super.key});
+	const NewCalcPage({super.key, this.initialInput});
+
+  final Map<String, dynamic>? initialInput;
 
 	@override
 	State<NewCalcPage> createState() => _NewCalcPageState();
@@ -13,19 +15,25 @@ class NewCalcPage extends StatefulWidget {
 class _NewCalcPageState extends State<NewCalcPage> {
 
   final _calcformkey = GlobalKey<FormState>();
+  late Map<String, dynamic> input;
 
-  Map<String, dynamic> input = {
-    'outfitName': '',
-    'category': '',
-    'fabric': 0,
-    'lining': 0,
-    'accessories': 0,
-    'laborHours': 0,
-    'laborRate': 0,
-    'transportMisc': 0,
-    'overhead': 0,
-    'profitMarginPct': 0,
-  };
+  @override
+  void initState() {
+    super.initState();
+    // Initialize input with template data or defaults
+    input = widget.initialInput ?? {
+      'outfitName': '',
+      'category': '',
+      'fabric': 0,
+      'lining': 0,
+      'accessories': 0,
+      'laborHours': 0,
+      'laborRate': 0,
+      'transportMisc': 0,
+      'overhead': 0,
+      'profitMarginPct': 0,
+    };
+  }
 
 	@override
 	Widget build(BuildContext context) {
@@ -105,6 +113,7 @@ class _NewCalcPageState extends State<NewCalcPage> {
 
   Widget _buildTextField(title, value) { // Text Field Widget
     return TextFormField(
+      initialValue: input[value]?.toString() ?? '',
       decoration: InputDecoration(
         labelText: title,
         border: OutlineInputBorder()
@@ -115,7 +124,9 @@ class _NewCalcPageState extends State<NewCalcPage> {
   }
 
   Widget _buildNumberField(title, value) { // Number Field Widget
+    final initialValue = input[value] ?? 0.0;
     return TextFormField(
+      initialValue: initialValue > 0 ? initialValue.toString() : '',
       decoration: InputDecoration(
         labelText: title,
         border: OutlineInputBorder()
@@ -137,7 +148,9 @@ class _NewCalcPageState extends State<NewCalcPage> {
 
   Widget _buildProfitMarginField() { // Profit Margin Field with default hint
     final defaultMargin = SettingsHelper.getDefaultMargin();
+    final initialValue = input['profitMarginPct'] ?? 0.0;
     return TextFormField(
+      initialValue: initialValue > 0 ? initialValue.toString() : '',
       decoration: InputDecoration(
         labelText: 'Profit Margin (%)',
         hintText: 'Default: ${defaultMargin.toStringAsFixed(1)}%',
