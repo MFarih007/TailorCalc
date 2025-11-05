@@ -12,7 +12,7 @@ class SettingsHelper {
   static const String defaultCurrency = 'NGN';
   static const double defaultMargin = 20.0;
   static const String defaultBrandName = 'TailorCalc';
-  static const String defaultPreparedBy = '';
+  static const String defaultPreparedBy = 'Tailor';
 
   // Currency symbols map
   static const Map<String, String> currencySymbols = {

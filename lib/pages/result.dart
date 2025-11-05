@@ -139,7 +139,7 @@ class _ResultPageState extends State<ResultPage> {
 • Labor + Overhead: ${_formatCurrency(laborTotal + overheadTotal)}
 • Profit (${profitMarginPct.toStringAsFixed(1)}%): ${_formatCurrency(profitAmount)}
 • Suggested Selling Price: ${_formatCurrency(sellingPrice)}
-${preparedBy.isNotEmpty ? '• Prepared by: $preparedBy' : ''}
+• Prepared by: $preparedBy
 • Date: $date
 
 ---
@@ -256,7 +256,7 @@ Generated with $brandName
       final quoteText = _formatQuoteText();
       await Share.share(
         quoteText,
-        subject: 'Tailoring Quote',
+        subject: 'TailorCalc',
       );
     } catch (e) {
       if (mounted) {

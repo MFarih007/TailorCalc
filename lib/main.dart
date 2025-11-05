@@ -86,7 +86,11 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         foregroundColor: Colors.white,
         backgroundColor: Colors.blue,
-
+        leading: IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.home),
+          tooltip: 'Home',
+        ),
         title: Text('Home'),
         actions: [
           IconButton(
