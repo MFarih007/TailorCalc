@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:tailor_calc/utils/settings_helper.dart';
 import 'package:tailor_calc/database/price_database.dart';
 import 'package:tailor_calc/models/pricinghistoryrecord.dart';
+import 'package:tailor_calc/models/template.dart';
 
 class ResultPage extends StatefulWidget {
 	const ResultPage({super.key, required this.result, this.input});
@@ -319,6 +320,101 @@ Generated with $brandName
     );
   }
 
+  Future<void> _saveTemplate() async {
+    if (widget.input == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No calculation data to save')),
+      );
+      return;
+    }
+
+    final input = widget.input!;
+    final result = widget.result;
+    
+    // Prompt for template name
+    final templateNameController = TextEditingController();
+    templateNameController.text = input['outfitName'] ?? 'Template';
+
+    final templateName = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Save Template'),
+          content: TextField(
+            controller: templateNameController,
+            decoration: InputDecoration(
+              labelText: 'Template Name',
+              hintText: 'Enter template name',
+              border: OutlineInputBorder(),
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (templateNameController.text.trim().isNotEmpty) {
+                  Navigator.pop(context, templateNameController.text.trim());
+                }
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (templateName == null || templateName.isEmpty) {
+      return;
+    }
+
+    try {
+      final profitMarginPct = result['profitMarginPct'] ?? SettingsHelper.getDefaultMargin();
+      final now = DateTime.now();
+
+      final template = Template(
+        templateName: templateName,
+        outfitName: input['outfitName'] ?? 'N/A',
+        category: input['category'] ?? 'N/A',
+        fabric: (input['fabric'] ?? 0.0).toDouble(),
+        lining: (input['lining'] ?? 0.0).toDouble(),
+        accessories: (input['accessories'] ?? 0.0).toDouble(),
+        laborHours: (input['laborHours'] ?? 0.0).toDouble(),
+        laborRate: (input['laborRate'] ?? 0.0).toDouble(),
+        transportMisc: (input['transportMisc'] ?? 0.0).toDouble(),
+        overhead: (input['overhead'] ?? 0.0).toDouble(),
+        profitMarginPct: profitMarginPct,
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      await _database.insertTemplate(template);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Template "$templateName" saved successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error saving template: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving template: $e'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
 	@override
 	Widget build(BuildContext context) {
     final materialsTotal = widget.result['materialsTotal'] ?? 0.0;
@@ -372,7 +468,7 @@ Generated with $brandName
             MaterialButton(
               color: Colors.blue,
               textColor: Colors.white,
-              onPressed: () => {},
+              onPressed: _saveTemplate,
               minWidth: 100,
               height: 50,
               child: Text('Save as Template'),

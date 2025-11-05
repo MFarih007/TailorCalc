@@ -18,7 +18,7 @@ class PriceDatabase {
     final databasePath = join(databaseDirPath, 'price.db');
 
     return await openDatabase(databasePath,
-      version: 1,
+      version: 2,
       onCreate: (Database db, int version) async {
         await db.execute('''
           CREATE TABLE PriceHistory(
@@ -76,6 +76,91 @@ class PriceDatabase {
         'outputs': outputsJson,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  // Template methods
+  Future<List<Template>> getAllTemplates() async {
+    final db = await database;
+    final templates = await db.query(
+      'Templates',
+      orderBy: 'updatedAt DESC',
+    );
+
+    return templates.map((row) {
+      return Template.fromJson({
+        'id': row['id'],
+        'templateName': row['templateName'],
+        'outfitName': row['outfitName'],
+        'category': row['category'],
+        'fabric': row['fabric'],
+        'lining': row['lining'],
+        'accessories': row['accessories'],
+        'laborHours': row['laborHours'],
+        'laborRate': row['laborRate'],
+        'transportMisc': row['transportMisc'],
+        'overhead': row['overhead'],
+        'profitMarginPct': row['profitMarginPct'],
+        'createdAt': row['createdAt'],
+        'updatedAt': row['updatedAt'],
+      });
+    }).toList();
+  }
+
+  Future<int> insertTemplate(Template template) async {
+    final db = await database;
+    
+    return await db.insert(
+      'Templates',
+      {
+        'templateName': template.templateName,
+        'outfitName': template.outfitName,
+        'category': template.category,
+        'fabric': template.fabric,
+        'lining': template.lining,
+        'accessories': template.accessories,
+        'laborHours': template.laborHours,
+        'laborRate': template.laborRate,
+        'transportMisc': template.transportMisc,
+        'overhead': template.overhead,
+        'profitMarginPct': template.profitMarginPct,
+        'createdAt': template.createdAt.toIso8601String(),
+        'updatedAt': template.updatedAt.toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<int> updateTemplate(Template template) async {
+    final db = await database;
+    
+    return await db.update(
+      'Templates',
+      {
+        'templateName': template.templateName,
+        'outfitName': template.outfitName,
+        'category': template.category,
+        'fabric': template.fabric,
+        'lining': template.lining,
+        'accessories': template.accessories,
+        'laborHours': template.laborHours,
+        'laborRate': template.laborRate,
+        'transportMisc': template.transportMisc,
+        'overhead': template.overhead,
+        'profitMarginPct': template.profitMarginPct,
+        'updatedAt': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [template.id],
+    );
+  }
+
+  Future<int> deleteTemplate(int id) async {
+    final db = await database;
+    return await db.delete(
+      'Templates',
+      where: 'id = ?',
+      whereArgs: [id],
     );
   }
 }
