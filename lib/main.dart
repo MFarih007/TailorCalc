@@ -110,12 +110,14 @@ class _HomeScreenState extends State<HomeScreen> {
             textColor: Colors.white,
             minWidth: 100,
             height: 100,
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => NewCalcPage()
-              )
-            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => NewCalcPage()
+                )
+              ).then((_) => _loadStats());
+            },
             child: Column(
               children: [
                 Icon(Icons.add),
@@ -129,12 +131,14 @@ class _HomeScreenState extends State<HomeScreen> {
             textColor: Colors.white,
             minWidth: 100,
             height: 100,
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => TemplateLibraryPage()
-              )
-            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TemplateLibraryPage()
+                )
+              ).then((_) => _loadStats());
+            },
             child: Column(
               children: [
                 Icon(Icons.folder),
@@ -166,12 +170,14 @@ class _HomeScreenState extends State<HomeScreen> {
             textColor: Colors.white,
             minWidth: 100,
             height: 100,
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PricingHistoryPage()
-              )
-            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PricingHistoryPage()
+                )
+              ).then((_) => _loadStats());
+            },
             child: Text('Campicay Ofum')
           )
         ]
