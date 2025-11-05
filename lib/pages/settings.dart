@@ -64,10 +64,10 @@ class _SettingsPageState extends State<SettingsPage> {
 									initialValue: SettingsHelper.getDefaultMargin().toString(),
 									keyboardType: TextInputType.numberWithOptions(decimal: true),
 									onChange: (value) {
-										final margin = double.tryParse(value);
-										if (margin != null && margin >= 0 && margin <= 100) {
-											SettingsHelper.setDefaultMargin(margin);
-										}
+										// final margin = double.tryParse(value);
+										// if (margin != null && margin >= 0 && margin <= 100) {
+										// 	SettingsHelper.setDefaultMargin(margin);
+										// }
 									},
 								),
 								// Padding(

@@ -39,14 +39,11 @@ class SettingsHelper {
     return currencySymbols[currency] ?? '₦';
   }
 
-  // Get default profit margin percentage
+  // Get default profit margin percentage (handles String/num)
   static double getDefaultMargin() {
-    return defaultMargin;
-    // final margin = Settings.getValue<double>(defaultMarginKey);
-    // if (margin == null) {
-    //   return defaultMargin;
-    // }
-    // return margin;
+    final value = Settings.getValue<String>(defaultMarginKey);
+    final parsed = double.tryParse(value!);
+    return parsed ?? defaultMargin;
   }
 
   // Get brand name

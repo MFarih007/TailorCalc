@@ -105,34 +105,6 @@ class _HomeScreenState extends State<HomeScreen> {
       body: ListView(
         padding: const EdgeInsets.all(30.0),
         children: [
-          Card(
-            elevation: 1,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Total Jobs', style: TextStyle(color: Colors.grey[700])),
-                      SizedBox(height: 6),
-                      Text(_totalJobs.toString(), style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text('Avg Profit Margin', style: TextStyle(color: Colors.grey[700])),
-                      SizedBox(height: 6),
-                      Text('${_avgProfitMargin.toStringAsFixed(1)}%', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 30),
           MaterialButton(
             color: Colors.blue,
             textColor: Colors.white,
@@ -169,6 +141,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text('Saved Templates')
               ]
             )
+          ),
+          SizedBox(height: 100),
+          SizedBox(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Total Jobs Calculated: $_totalJobs', style: TextStyle(fontSize: 16)),
+                      Text('Avg Profit Margin: ${_avgProfitMargin.toStringAsFixed(1)}%', style: TextStyle(fontSize: 16)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
           SizedBox(height: 30),
           MaterialButton(

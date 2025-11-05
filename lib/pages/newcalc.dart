@@ -50,21 +50,34 @@ class _NewCalcPageState extends State<NewCalcPage> {
             padding: const EdgeInsets.all(30.0),
             children: [
               Text('Job Details'),
-              SizedBox(height: 20),
-              _buildTextField('Outfit Name', 'outfitName'),
-              SizedBox(height: 20),
-              _buildTextField('Category', 'category'),
-              SizedBox(height: 20),
+              SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: _buildTextField('Outfit Name', 'outfitName'),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: _buildTextField('Category', 'category'),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 12),
               Text('Material Costs'),
-              SizedBox(height: 20),
+              SizedBox(height: 12),
               _buildNumberField('Fabric', 'fabric'),
-              SizedBox(height: 20),
+              SizedBox(height: 12),
               _buildNumberField('Lining', 'lining'),
-              SizedBox(height: 20),
+              SizedBox(height: 12),
               _buildNumberField('Accessories', 'accessories'),
-              SizedBox(height: 20),
+              SizedBox(height: 12),
               Text('Labor & Overhead'),
-              SizedBox(height: 20),
+              SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
@@ -76,12 +89,12 @@ class _NewCalcPageState extends State<NewCalcPage> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8.0),
-                      child: _buildNumberField('Labor Rate (per hour)', 'laborRate'),
+                      child: _buildNumberField('Labor Rate', 'laborRate'),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
@@ -98,11 +111,11 @@ class _NewCalcPageState extends State<NewCalcPage> {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 12),
               Text('Profit Margin'),
-              SizedBox(height: 20),
+              SizedBox(height: 12),
               _buildProfitMarginField(),
-              SizedBox(height: 20),
+              SizedBox(height: 12),
               _buildCalculateButton(),
             ],
           )

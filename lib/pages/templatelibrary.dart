@@ -172,6 +172,19 @@ class _TemplateLibraryPageState extends State<TemplateLibraryPage> {
     );
   }
 
+  void _createNewTemplate() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const NewCalcPage(),
+      ),
+    );
+    // After returning from creation flow, refresh the list
+    if (mounted) {
+      _loadTemplates();
+    }
+  }
+
 	@override
 	Widget build(BuildContext context) {
 		return Scaffold(
@@ -278,6 +291,11 @@ class _TemplateLibraryPageState extends State<TemplateLibraryPage> {
                   },
                 ),
               ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _createNewTemplate,
+        icon: const Icon(Icons.add),
+        label: const Text('New Template'),
       ),
 		);
 	}

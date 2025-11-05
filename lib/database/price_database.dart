@@ -127,6 +127,11 @@ class PriceDatabase {
     }).toList();
   }
 
+  Future<int> clearHistory() async {
+    final db = await database;
+    return await db.delete('PriceHistory');
+  }
+
   Future<int> insertRecord(PricingHistoryRecord record) async {
     final db = await database;
     
