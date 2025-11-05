@@ -193,7 +193,6 @@ class _NewCalcPageState extends State<NewCalcPage> {
             context,
             MaterialPageRoute(
               builder: (_) {
-                debugPrint(_calculate()['materialsTotal'].toString());
                 return ResultPage(
                   result: _calculate(),
                   input: input

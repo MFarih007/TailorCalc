@@ -14,10 +14,10 @@ class PriceDatabase {
 
   static Future<Database> _initDatabase() async {
     final databaseDirPath = await getDatabasesPath();
-    print('Database directory path: $databaseDirPath');
     final databasePath = join(databaseDirPath, 'price.db');
 
-    return await openDatabase(databasePath,
+    return await openDatabase(
+      databasePath,
       version: 2,
       onCreate: (Database db, int version) async {
         await db.execute('''
@@ -30,6 +30,76 @@ class PriceDatabase {
             currency TEXT NOT NULL,
             inputs TEXT NOT NULL,
             outputs TEXT NOT NULL
+          )''');
+
+        await db.execute('''
+          CREATE TABLE Templates(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            templateName TEXT NOT NULL,
+            outfitName TEXT NOT NULL,
+            category TEXT NOT NULL,
+            fabric REAL NOT NULL,
+            lining REAL NOT NULL,
+            accessories REAL NOT NULL,
+            laborHours REAL NOT NULL,
+            laborRate REAL NOT NULL,
+            transportMisc REAL NOT NULL,
+            overhead REAL NOT NULL,
+            profitMarginPct REAL NOT NULL,
+            createdAt TEXT NOT NULL,
+            updatedAt TEXT NOT NULL
+          )''');
+      },
+      onUpgrade: (Database db, int oldVersion, int newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('''
+            CREATE TABLE IF NOT EXISTS Templates(
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              templateName TEXT NOT NULL,
+              outfitName TEXT NOT NULL,
+              category TEXT NOT NULL,
+              fabric REAL NOT NULL,
+              lining REAL NOT NULL,
+              accessories REAL NOT NULL,
+              laborHours REAL NOT NULL,
+              laborRate REAL NOT NULL,
+              transportMisc REAL NOT NULL,
+              overhead REAL NOT NULL,
+              profitMarginPct REAL NOT NULL,
+              createdAt TEXT NOT NULL,
+              updatedAt TEXT NOT NULL
+            )''');
+        }
+      },
+      onOpen: (Database db) async {
+        // Safety: ensure both tables exist even if a previous bad migration occurred
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS PriceHistory(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            historyId TEXT NOT NULL,
+            createdAt TEXT NOT NULL,
+            outfitName TEXT NOT NULL,
+            category TEXT NOT NULL,
+            currency TEXT NOT NULL,
+            inputs TEXT NOT NULL,
+            outputs TEXT NOT NULL
+          )''');
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS Templates(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            templateName TEXT NOT NULL,
+            outfitName TEXT NOT NULL,
+            category TEXT NOT NULL,
+            fabric REAL NOT NULL,
+            lining REAL NOT NULL,
+            accessories REAL NOT NULL,
+            laborHours REAL NOT NULL,
+            laborRate REAL NOT NULL,
+            transportMisc REAL NOT NULL,
+            overhead REAL NOT NULL,
+            profitMarginPct REAL NOT NULL,
+            createdAt TEXT NOT NULL,
+            updatedAt TEXT NOT NULL
           )''');
       },
     );
