@@ -148,7 +148,7 @@ class _NewCalcPageState extends State<NewCalcPage> {
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
       ],
-      validator: (value) => double.tryParse(value!) == null || double.parse(value) < 0 ? 'Valid number >= 0' : null,
+      validator: (value) => double.tryParse(value!) == null || double.parse(value) < 0 ? 'Enter a valid number ≥ 0' : null,
       onChanged:(newValue) {
         if (newValue.isNotEmpty) {
           input[value] = double.tryParse(newValue) ?? 0.0;
@@ -179,8 +179,8 @@ class _NewCalcPageState extends State<NewCalcPage> {
           return null; // Empty is allowed (will use default)
         }
         final parsed = double.tryParse(value);
-        if (parsed == null || parsed < 0 || parsed > 100) {
-          return 'Valid percentage between 0-100';
+        if (parsed == null || parsed < 0 || parsed > 95) {
+          return 'Valid percentage between 0-95';
         }
         return null;
       },
