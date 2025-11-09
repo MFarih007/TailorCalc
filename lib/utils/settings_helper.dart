@@ -42,8 +42,11 @@ class SettingsHelper {
   // Get default profit margin percentage (handles String/num)
   static double getDefaultMargin() {
     final value = Settings.getValue<String>(defaultMarginKey);
-    final parsed = double.tryParse(value!);
-    return parsed ?? defaultMargin;
+    if (value == null) return defaultMargin;
+    else {
+      final parsed = double.tryParse(value!);
+      return parsed!;
+    }
   }
 
   // Get brand name

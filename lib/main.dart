@@ -13,7 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Settings.init(cacheProvider: SharePreferenceCache());
 
-  bool preview_mode = true;
+  bool preview_mode = false;
 
   if (preview_mode) {
     runApp(
