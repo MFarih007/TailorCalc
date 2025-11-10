@@ -18,6 +18,7 @@ class _PricingHistoryPageState extends State<PricingHistoryPage> {
 
   Future<void> loadHistory() async {
     final histories = await db.readAllHistory();
+
     setState(() {
       this.histories = histories;
     });
@@ -46,29 +47,29 @@ class _PricingHistoryPageState extends State<PricingHistoryPage> {
 			),
       body: SafeArea(
         child: histories.isEmpty
-            ? Center(
-                child: Text('No Pricing History', style: TextStyle(color: Colors.grey[600])),
-              )
-            : ListView.separated(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: histories.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
-                itemBuilder: (context, index) {
-                  final item = histories[index];
-                  final dateStr = DateFormat('dd/MM/yyyy HH:mm').format(item.createdAt);
-                  final priceStr = SettingsHelper.formatCurrency(item.computed.sellingPrice);
-                  final marginStr = '${item.inputs.profitMarginPct.toStringAsFixed(1)}%';
+          ? Center(
+              child: Text('No Pricing History', style: TextStyle(color: Colors.grey[600])),
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: histories.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              itemBuilder: (context, index) {
+                final item = histories[index];
+                final dateStr = DateFormat('dd/MM/yyyy HH:mm').format(item.createdAt);
+                final priceStr = SettingsHelper.formatCurrency(item.computed.sellingPrice);
+                final marginStr = '${item.inputs.profitMarginPct.toStringAsFixed(1)}%';
 
-                  return Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.history),
-                      title: Text(item.outfitName),
-                      subtitle: Text('$dateStr • $marginStr'),
-                      trailing: Text(priceStr, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                  );
-                },
-              )
+                return Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.history),
+                    title: Text(item.outfitName),
+                    subtitle: Text('$dateStr • $marginStr'),
+                    trailing: Text(priceStr, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                );
+              },
+            )
       )
 		);
 	}

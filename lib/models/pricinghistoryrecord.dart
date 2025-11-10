@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:tailor_calc/pages/newcalc.dart';
+
 class PricingHistoryRecord {
   int? id;
   String historyId;
@@ -28,7 +33,7 @@ class PricingHistoryRecord {
       category: json['category'],
       currency: json['currency'],
       inputs: Inputs.fromJson(json['inputs']),
-      computed: Computed.fromJson(json['computed'])
+      computed: Computed.fromJson(json['computed'] ?? json['outputs']) // Support both field names
     );
   }
 
@@ -47,64 +52,83 @@ class PricingHistoryRecord {
 }
 
 class Inputs {
-  final double fabric;
-  final double lining;
-  final double accessories;
-  final double laborHours;
-  final double laborRate;
-  final double transportMisc;
-  final double overhead;
+  final List<TailorItem> labors;
+  final List<MaterialItem> materials;
+  final List<TransportItem> transports;
+  final List<OverheadItem> overheads;
   final double profitMarginPct;
 
   Inputs({
-    required this.fabric,
-    required this.lining,
-    required this.accessories,
-    required this.laborHours,
-    required this.laborRate,
-    required this.transportMisc,
-    required this.overhead,
-    required this.profitMarginPct,
+    required this.labors,
+    required this.materials,
+    required this.transports,
+    required this.overheads,
+    required this.profitMarginPct
   });
 
   factory Inputs.fromJson(Map<String, dynamic> json) {
+    // Parse lists of maps to custom objects
+    final laborsList = (json['labors'] as List?)?.map((item) {
+      if (item is Map<String, dynamic>) {
+        return TailorItem.fromJson(item);
+      }
+      return null;
+    }).where((item) => item != null).cast<TailorItem>().toList() ?? [];
+    
+    final materialsList = (json['materials'] as List?)?.map((item) {
+      if (item is Map<String, dynamic>) {
+        return MaterialItem.fromJson(item);
+      }
+      return null;
+    }).where((item) => item != null).cast<MaterialItem>().toList() ?? [];
+    
+    final transportsList = (json['transports'] as List?)?.map((item) {
+      if (item is Map<String, dynamic>) {
+        return TransportItem.fromJson(item);
+      }
+      return null;
+    }).where((item) => item != null).cast<TransportItem>().toList() ?? [];
+    
+    final overheadsList = (json['overheads'] as List?)?.map((item) {
+      if (item is Map<String, dynamic>) {
+        return OverheadItem.fromJson(item);
+      }
+      return null;
+    }).where((item) => item != null).cast<OverheadItem>().toList() ?? [];
+    
     return Inputs(
-      fabric: (json['fabric'] as num).toDouble(),
-      lining: (json['lining'] as num).toDouble(),
-      accessories: (json['accessories'] as num).toDouble(),
-      laborHours: (json['laborHours'] as num).toDouble(),
-      laborRate: (json['laborRate'] as num).toDouble(),
-      transportMisc: (json['transportMisc'] as num).toDouble(),
-      overhead: (json['overhead'] as num).toDouble(),
-      profitMarginPct: (json['profitMarginPct'] as num).toDouble(),
+      labors: laborsList,
+      materials: materialsList,
+      transports: transportsList,
+      overheads: overheadsList,
+      profitMarginPct: (json['profitMarginPct'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'fabric': fabric,
-      'lining': lining,
-      'accessories': accessories,
-      'laborHours': laborHours,
-      'laborRate': laborRate,
-      'transportMisc': transportMisc,
-      'overhead': overhead,
+      'labors': labors.map((item) => item.toJson()).toList(),
+      'materials': materials.map((item) => item.toJson()).toList(),
+      'transports': transports.map((item) => item.toJson()).toList(),
+      'overheads': overheads.map((item) => item.toJson()).toList(),
       'profitMarginPct': profitMarginPct,
     };
   }
 }
 
 class Computed {
-  final double materialsTotal;
   final double laborTotal;
+  final double materialsTotal;
+  final double transportTotal;
   final double overheadTotal;
   final double costTotal;
   final double profitAmount;
   final double sellingPrice;
 
   Computed({
-    required this.materialsTotal,
     required this.laborTotal,
+    required this.materialsTotal,
+    required this.transportTotal,
     required this.overheadTotal,
     required this.costTotal,
     required this.profitAmount,
@@ -113,19 +137,21 @@ class Computed {
 
   factory Computed.fromJson(Map<String, dynamic> json) {
     return Computed(
-      materialsTotal: (json['materialsTotal'] as num).toDouble(),
-      laborTotal: (json['laborTotal'] as num).toDouble(),
-      overheadTotal: (json['overheadTotal'] as num).toDouble(),
-      costTotal: (json['costTotal'] as num).toDouble(),
-      profitAmount: (json['profitAmount'] as num).toDouble(),
-      sellingPrice: (json['sellingPrice'] as num).toDouble(),
+      laborTotal: (json['laborTotal'] as num?)?.toDouble() ?? 0.0,
+      materialsTotal: (json['materialsTotal'] as num?)?.toDouble() ?? 0.0,
+      transportTotal: (json['transportTotal'] as num?)?.toDouble() ?? 0.0,
+      overheadTotal: (json['overheadTotal'] as num?)?.toDouble() ?? 0.0,
+      costTotal: (json['costTotal'] as num?)?.toDouble() ?? 0.0,
+      profitAmount: (json['profitAmount'] as num?)?.toDouble() ?? 0.0,
+      sellingPrice: (json['sellingPrice'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'materialsTotal': materialsTotal,
       'laborTotal': laborTotal,
+      'materialsTotal': materialsTotal,
+      'transportTotal': transportTotal,
       'overheadTotal': overheadTotal,
       'costTotal': costTotal,
       'profitAmount': profitAmount,

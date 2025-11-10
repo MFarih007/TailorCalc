@@ -34,7 +34,6 @@ class _TemplateLibraryPageState extends State<TemplateLibraryPage> {
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('Error loading templates: $e');
       setState(() {
         _isLoading = false;
       });
@@ -121,18 +120,36 @@ class _TemplateLibraryPageState extends State<TemplateLibraryPage> {
                 _buildDetailRow('Outfit Name', template.outfitName),
                 _buildDetailRow('Category', template.category),
                 SizedBox(height: 10),
-                Text('Material Costs:', style: TextStyle(fontWeight: FontWeight.bold)),
-                _buildDetailRow('Fabric', template.fabric.toStringAsFixed(2)),
-                _buildDetailRow('Lining', template.lining.toStringAsFixed(2)),
-                _buildDetailRow('Accessories', template.accessories.toStringAsFixed(2)),
-                SizedBox(height: 10),
-                Text('Labor & Overhead:', style: TextStyle(fontWeight: FontWeight.bold)),
-                _buildDetailRow('Labor Hours', template.laborHours.toStringAsFixed(2)),
-                _buildDetailRow('Labor Rate', template.laborRate.toStringAsFixed(2)),
-                _buildDetailRow('Transport/Misc', template.transportMisc.toStringAsFixed(2)),
-                _buildDetailRow('Overhead', template.overhead.toStringAsFixed(2)),
-                SizedBox(height: 10),
-                _buildDetailRow('Profit Margin', '${template.profitMarginPct.toStringAsFixed(1)}%'),
+                // Show comprehensive data if available
+                ...[
+                  Text('Materials:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ...template.inputs.materials.map((material) =>
+                    _buildDetailRow(material.name, '${material.length.toStringAsFixed(0)} units @ ${material.cost.toStringAsFixed(2)}')
+                  ).toList(),
+                  SizedBox(height: 10),
+                ],
+                ...[
+                  Text('Transport:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ...template.inputs.transports.map((transport) =>
+                    _buildDetailRow(transport.location, '${transport.cost.toStringAsFixed(2)} ${transport.notes.isNotEmpty ? "(${transport.notes})" : ""}')
+                  ).toList(),
+                  SizedBox(height: 10),
+                ],
+                ...[
+                  Text('Overheads:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ...template.inputs.overheads.map((overhead) =>
+                    _buildDetailRow(overhead.type, '${overhead.hours.toStringAsFixed(1)} hrs @ ${overhead.cost.toStringAsFixed(2)}/hr')
+                  ).toList(),
+                  SizedBox(height: 10),
+                ],
+                ...[
+                  Text('Labor:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ...template.inputs.labors.map((tailor) =>
+                    _buildDetailRow(tailor.name, '${tailor.hoursSpent.toStringAsFixed(1)} hrs @ ${(tailor.salaryPerMonth / (tailor.daysPerMonth * tailor.hoursPerDay)).toStringAsFixed(2)}/hr')
+                  ).toList(),
+                  SizedBox(height: 10),
+                ],
+                _buildDetailRow('Profit Margin', '${template.inputs.profitMarginPct.toStringAsFixed(1)}%'),
                 SizedBox(height: 10),
                 Text(
                   'Updated: ${DateFormat('dd/MM/yyyy HH:mm').format(template.updatedAt)}',
@@ -246,9 +263,21 @@ class _TemplateLibraryPageState extends State<TemplateLibraryPage> {
                             SizedBox(height: 4),
                             Text('${template.outfitName} - ${template.category}'),
                             SizedBox(height: 2),
+                            // Show data type indicator
+                            Text(
+                              template.inputs.materials.isNotEmpty || template.inputs.transports.isNotEmpty ||
+                              template.inputs.overheads.isNotEmpty || template.inputs.labors.isNotEmpty
+                                  ? 'Comprehensive Template' : 'Legacy Template',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: template.inputs.materials.isNotEmpty || template.inputs.transports.isNotEmpty ||
+                                       template.inputs.overheads.isNotEmpty || template.inputs.labors.isNotEmpty
+                                    ? Colors.green[600] : Colors.orange[600]
+                              ),
+                            ),
                             Text(
                               'Updated: ${DateFormat('dd/MM/yyyy').format(template.updatedAt)}',
-                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                              style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                             ),
                           ],
                         ),

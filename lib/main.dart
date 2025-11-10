@@ -13,7 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Settings.init(cacheProvider: SharePreferenceCache());
 
-  bool preview_mode = false;
+  bool preview_mode = true;
 
   if (preview_mode) {
     runApp(
@@ -195,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 )
               ).then((_) => _loadStats());
             },
-            child: Text('Campicay Ofum')
+            child: Text('Pricing History')
           )
         ]
       ),

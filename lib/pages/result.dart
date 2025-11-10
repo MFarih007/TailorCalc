@@ -46,59 +46,85 @@ class _ResultPageState extends State<ResultPage> {
       // Get profit margin from result or default
       final profitMarginPct = result['profitMarginPct'] ?? SettingsHelper.getDefaultMargin();
       
-      // Create Inputs object
+      // Get detailed data - ALL INPUT DATA IS SAVED
+      final materials = input['materials'] ?? [];
+      final transports = input['transports'] ?? [];
+      final overheads = input['overheads'] ?? [];
+      final tailors = input['tailors'] ?? [];
+      
+      // Calculate totals for computed results
+      double materialsTotal = 0.0;
+      for (var material in materials) {
+        materialsTotal += material.cost * material.length;
+      }
+      
+      double transportTotal = 0.0;
+      for (var transport in transports) {
+        transportTotal += transport.cost;
+      }
+      
+      double overheadTotal = 0.0;
+      for (var overhead in overheads) {
+        overheadTotal += overhead.cost * overhead.hours;
+      }
+      
+      double laborTotal = 0.0;
+      for (var tailor in tailors) {
+        laborTotal += tailor.salaryPerMonth / (tailor.daysPerMonth * tailor.hoursPerDay) * tailor.hoursSpent;
+      }
+      
+      // Create Inputs object with ALL detailed data for database storage
+      // This includes all materials, transports, overheads, and tailors
       final inputs = Inputs(
-        fabric: (input['fabric'] ?? 0.0).toDouble(),
-        lining: (input['lining'] ?? 0.0).toDouble(),
-        accessories: (input['accessories'] ?? 0.0).toDouble(),
-        laborHours: (input['laborHours'] ?? 0.0).toDouble(),
-        laborRate: (input['laborRate'] ?? 0.0).toDouble(),
-        transportMisc: (input['transportMisc'] ?? 0.0).toDouble(),
-        overhead: (input['overhead'] ?? 0.0).toDouble(),
+        labors: input['tailors'], // Labor/tailor data
+        materials: input['materials'], // Material items
+        transports: input['transports'], // Transport details
+        overheads: input['overheads'], // Overhead items
         profitMarginPct: profitMarginPct,
       );
       
-      // Create Computed object
+      // Create Computed object with all totals
       final computed = Computed(
-        materialsTotal: (result['materialsTotal'] ?? 0.0).toDouble(),
-        laborTotal: (result['laborTotal'] ?? 0.0).toDouble(),
-        overheadTotal: (result['overheadTotal'] ?? 0.0).toDouble(),
-        costTotal: (result['costTotal'] ?? 0.0).toDouble(),
+        laborTotal: laborTotal,
+        materialsTotal: materialsTotal,
+        overheadTotal: overheadTotal,
+        transportTotal: transportTotal,
+        costTotal: (result['costTotal'] ?? (materialsTotal + laborTotal + overheadTotal + transportTotal)).toDouble(),
         profitAmount: (result['profitAmount'] ?? 0.0).toDouble(),
         sellingPrice: (result['sellingPrice'] ?? 0.0).toDouble(),
       );
       
-      // Create record
+      // Create complete record with ALL input data
       final record = PricingHistoryRecord(
         historyId: historyId,
         createdAt: DateTime.now(),
         outfitName: input['outfitName'] ?? 'N/A',
         category: input['category'] ?? 'N/A',
         currency: currency,
-        inputs: inputs,
+        inputs: inputs, // Contains ALL detailed input data
         computed: computed,
       );
       
-      // Save to database
-      await _database.insertRecord(record);
+      // Save COMPLETE calculation data to database
+      final resultId = await _database.insertRecord(record);
+      
       _isSaved = true;
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Calculation saved to history'),
+            content: Text('Calculation with all details saved to history (ID: $resultId)'),
             duration: Duration(seconds: 2),
           ),
         );
       }
     } catch (e) {
-      debugPrint('Error saving calculation: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error saving calculation: $e'),
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
+            duration: Duration(seconds: 5),
           ),
         );
       }
@@ -118,6 +144,7 @@ class _ResultPageState extends State<ResultPage> {
     final materialsTotal = result['materialsTotal'] ?? 0.0;
     final laborTotal = result['laborTotal'] ?? 0.0;
     final overheadTotal = result['overheadTotal'] ?? 0.0;
+    final transportTotal = result['transportTotal'] ?? 0.0;
     final profitAmount = result['profitAmount'] ?? 0.0;
     final sellingPrice = result['sellingPrice'] ?? 0.0;
     final profitMarginPct = result['profitMarginPct'] ?? SettingsHelper.getDefaultMargin();
@@ -136,7 +163,10 @@ class _ResultPageState extends State<ResultPage> {
 
 *Cost Breakdown:*
 • Materials: ${_formatCurrency(materialsTotal)}
-• Labor + Overhead: ${_formatCurrency(laborTotal + overheadTotal)}
+• Transport: ${_formatCurrency(transportTotal)}
+• Labor: ${_formatCurrency(laborTotal)}
+• Overhead: ${_formatCurrency(overheadTotal)}
+• Total Cost: ${_formatCurrency(materialsTotal + transportTotal + laborTotal + overheadTotal)}
 • Profit (${profitMarginPct.toStringAsFixed(1)}%): ${_formatCurrency(profitAmount)}
 • Suggested Selling Price: ${_formatCurrency(sellingPrice)}
 • Prepared by: $preparedBy
@@ -159,6 +189,7 @@ Generated with $brandName
     final materialsTotal = result['materialsTotal'] ?? 0.0;
     final laborTotal = result['laborTotal'] ?? 0.0;
     final overheadTotal = result['overheadTotal'] ?? 0.0;
+    final transportTotal = result['transportTotal'] ?? 0.0;
     final profitAmount = result['profitAmount'] ?? 0.0;
     final sellingPrice = result['sellingPrice'] ?? 0.0;
     final profitMarginPct = result['profitMarginPct'] ?? SettingsHelper.getDefaultMargin();
@@ -207,7 +238,10 @@ Generated with $brandName
                 ),
                 pw.SizedBox(height: 10),
                 pw.Text('Material Cost: ${_formatCurrency(materialsTotal)}'),
-                pw.Text('Labor + Overhead: ${_formatCurrency(laborTotal + overheadTotal)}'),
+                pw.Text('Transport Cost: ${_formatCurrency(transportTotal)}'),
+                pw.Text('Labor Cost: ${_formatCurrency(laborTotal)}'),
+                pw.Text('Overhead Cost: ${_formatCurrency(overheadTotal)}'),
+                pw.Text('Total Cost: ${_formatCurrency(materialsTotal + transportTotal + laborTotal + overheadTotal)}'),
                 pw.Text('Profit (${profitMarginPct.toStringAsFixed(1)}%): ${_formatCurrency(profitAmount)}'),
                 pw.SizedBox(height: 30),
                 pw.Divider(),
@@ -329,7 +363,6 @@ Generated with $brandName
     }
 
     final input = widget.input!;
-    final result = widget.result;
     
     // Prompt for template name
     final templateNameController = TextEditingController();
@@ -372,23 +405,23 @@ Generated with $brandName
     }
 
     try {
-      final profitMarginPct = result['profitMarginPct'] ?? SettingsHelper.getDefaultMargin();
-      final now = DateTime.now();
 
+      final inputs = Inputs(
+        labors: input['tailors'], // Labor/tailor data
+        materials: input['materials'], // Material items
+        transports: input['transports'], // Transport details
+        overheads: input['overheads'], // Overhead items
+        profitMarginPct: (input['profitMarginPct'] as num?)?.toDouble() ?? SettingsHelper.getDefaultMargin(),
+      );
+      // Use the new comprehensive template creation method
       final template = Template(
         templateName: templateName,
         outfitName: input['outfitName'] ?? 'N/A',
         category: input['category'] ?? 'N/A',
-        fabric: (input['fabric'] ?? 0.0).toDouble(),
-        lining: (input['lining'] ?? 0.0).toDouble(),
-        accessories: (input['accessories'] ?? 0.0).toDouble(),
-        laborHours: (input['laborHours'] ?? 0.0).toDouble(),
-        laborRate: (input['laborRate'] ?? 0.0).toDouble(),
-        transportMisc: (input['transportMisc'] ?? 0.0).toDouble(),
-        overhead: (input['overhead'] ?? 0.0).toDouble(),
-        profitMarginPct: profitMarginPct,
-        createdAt: now,
-        updatedAt: now,
+        currency: input['currency'] ?? 'N/A',
+        inputs: inputs,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       await _database.insertTemplate(template);
@@ -402,7 +435,6 @@ Generated with $brandName
         );
       }
     } catch (e) {
-      debugPrint('Error saving template: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -417,74 +449,193 @@ Generated with $brandName
 
 	@override
 	Widget build(BuildContext context) {
-    final materialsTotal = widget.result['materialsTotal'] ?? 0.0;
-    final laborTotal = widget.result['laborTotal'] ?? 0.0;
-    final overheadTotal = widget.result['overheadTotal'] ?? 0.0;
-    final profitAmount = widget.result['profitAmount'] ?? 0.0;
-    final sellingPrice = widget.result['sellingPrice'] ?? 0.0;
-    final profitMarginPct = widget.result['profitMarginPct'] ?? SettingsHelper.getDefaultMargin();
-    
+	   final materialsTotal = widget.result['materialsTotal'] ?? 0.0;
+	   final laborTotal = widget.result['laborTotal'] ?? 0.0;
+	   final overheadTotal = widget.result['overheadTotal'] ?? 0.0;
+	   final transportTotal = widget.result['transportTotal'] ?? 0.0;
+	   final profitAmount = widget.result['profitAmount'] ?? 0.0;
+	   final sellingPrice = widget.result['sellingPrice'] ?? 0.0;
+	   final profitMarginPct = widget.result['profitMarginPct'] ?? SettingsHelper.getDefaultMargin();
+	   
+	   // Get detailed data from input
+	   final input = widget.input ?? {};
+	   final materials = input['materials'] ?? [];
+	   final transports = input['transports'] ?? [];
+	   final overheads = input['overheads'] ?? [];
+	   final tailors = input['tailors'] ?? [];
+	   
 		return Scaffold(
 			appBar: AppBar(
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
+	       backgroundColor: Colors.blue,
+	       foregroundColor: Colors.white,
 				title: Text('Calculation Result'),
 			),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(30.0),
-          children: [
-            Text('Material Cost'),
-            SizedBox(height: 10),
-            Text(
-              _formatCurrency(materialsTotal),
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 30),
-            Text('Labor + Overhead'),
-            SizedBox(height: 10),
-            Text(
-              _formatCurrency(laborTotal + overheadTotal),
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 30),
-            Text('Profit (${profitMarginPct.toStringAsFixed(1)}%)'),
-            SizedBox(height: 10),
-            Text(
-              _formatCurrency(profitAmount),
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 30),
-            Text('Suggested Selling Price'),
-            SizedBox(height: 10),
-            Text(
-              _formatCurrency(sellingPrice),
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 30),
-            MaterialButton(
-              color: Colors.blue,
-              textColor: Colors.white,
-              onPressed: _saveTemplate,
-              minWidth: 100,
-              height: 50,
-              child: Text('Save as Template'),
-            ),
-            SizedBox(height: 30),
-            MaterialButton(
-              color: Colors.blue,
-              textColor: Colors.white,
-              onPressed: _showShareOptions,
-              minWidth: 100,
-              height: 50,
-              child: Text('Share Quote'),
-            )
-          ],
-        )
-      )
+	     body: SafeArea(
+	       child: ListView(
+	         padding: const EdgeInsets.all(30.0),
+	         children: [
+	           // Job Details
+	           Text(
+	             'Job Details',
+	             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+	           ),
+	           SizedBox(height: 10),
+	           Text('Outfit: ${input['outfitName'] ?? 'N/A'}'),
+	           Text('Category: ${input['category'] ?? 'N/A'}'),
+	           SizedBox(height: 30),
+
+	           // Materials Section
+	           if (materials.isNotEmpty) ...[
+	             Text(
+	               'Materials',
+	               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+	             ),
+	             SizedBox(height: 10),
+	             ...materials.map<Widget>((material) => Padding(
+	               padding: const EdgeInsets.symmetric(vertical: 2),
+	               child: Row(
+	                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+	                 children: [
+	                   Text('${material.name} (${material.length.toStringAsFixed(0)} units)'),
+	                   Text(_formatCurrency(material.cost * material.length)),
+	                 ],
+	               ),
+	             )),
+	             Divider(),
+	             Row(
+	               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+	               children: [
+	                 Text('Total Materials:', style: TextStyle(fontWeight: FontWeight.bold)),
+	                 Text(_formatCurrency(materialsTotal), style: TextStyle(fontWeight: FontWeight.bold)),
+	               ],
+	             ),
+	             SizedBox(height: 20),
+	           ],
+
+	           // Transport Section
+	           if (transports.isNotEmpty) ...[
+	             Text(
+	               'Transport',
+	               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+	             ),
+	             SizedBox(height: 10),
+	             ...transports.map<Widget>((transport) => Padding(
+	               padding: const EdgeInsets.symmetric(vertical: 2),
+	               child: Row(
+	                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+	                 children: [
+	                   Text('${transport.location}${transport.notes.isNotEmpty ? ' (${transport.notes})' : ''}'),
+	                   Text(_formatCurrency(transport.cost)),
+	                 ],
+	               ),
+	             )),
+	             Divider(),
+	             Row(
+	               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+	               children: [
+	                 Text('Total Transport:', style: TextStyle(fontWeight: FontWeight.bold)),
+	                 Text(_formatCurrency(transportTotal), style: TextStyle(fontWeight: FontWeight.bold)),
+	               ],
+	             ),
+	             SizedBox(height: 20),
+	           ],
+
+	           // Overheads Section
+	           if (overheads.isNotEmpty) ...[
+	             Text(
+	               'Overheads',
+	               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+	             ),
+	             SizedBox(height: 10),
+	             ...overheads.map<Widget>((overhead) => Padding(
+	               padding: const EdgeInsets.symmetric(vertical: 2),
+	               child: Row(
+	                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+	                 children: [
+	                   Text('${overhead.type} (${overhead.hours.toStringAsFixed(1)} hours)'),
+	                   Text(_formatCurrency(overhead.cost * overhead.hours)),
+	                 ],
+	               ),
+	             )),
+	             Divider(),
+	             Row(
+	               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+	               children: [
+	                 Text('Total Overheads:', style: TextStyle(fontWeight: FontWeight.bold)),
+	                 Text(_formatCurrency(overheadTotal), style: TextStyle(fontWeight: FontWeight.bold)),
+	               ],
+	             ),
+	             SizedBox(height: 20),
+	           ],
+
+	           // Labor Section
+	           if (tailors.isNotEmpty) ...[
+	             Text(
+	               'Labor',
+	               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+	             ),
+	             SizedBox(height: 10),
+	             ...tailors.map<Widget>((tailor) => Padding(
+	               padding: const EdgeInsets.symmetric(vertical: 2),
+	               child: Row(
+	                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+	                 children: [
+	                   Text('${tailor.name} (${tailor.hoursSpent.toStringAsFixed(1)} hours)'),
+	                   Text(_formatCurrency(tailor.salaryPerMonth / (tailor.daysPerMonth * tailor.hoursPerDay) * tailor.hoursSpent)),
+	                 ],
+	               ),
+	             )),
+	             Divider(),
+	             Row(
+	               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+	               children: [
+	                 Text('Total Labor:', style: TextStyle(fontWeight: FontWeight.bold)),
+	                 Text(_formatCurrency(laborTotal), style: TextStyle(fontWeight: FontWeight.bold)),
+	               ],
+	             ),
+	             SizedBox(height: 20),
+	           ],
+
+	           // Final Totals
+	           Divider(thickness: 2),
+	           SizedBox(height: 20),
+	           Text('Profit (${profitMarginPct.toStringAsFixed(1)}%)'),
+	           SizedBox(height: 10),
+	           Text(
+	             _formatCurrency(profitAmount),
+	             style: TextStyle(fontSize: 18),
+	           ),
+	           SizedBox(height: 20),
+	           Text('Suggested Selling Price'),
+	           SizedBox(height: 10),
+	           Text(
+	             _formatCurrency(sellingPrice),
+	             style: TextStyle(
+	               fontSize: 30,
+	               fontWeight: FontWeight.bold,
+	             ),
+	           ),
+	           SizedBox(height: 30),
+	           MaterialButton(
+	             color: Colors.blue,
+	             textColor: Colors.white,
+	             onPressed: _saveTemplate,
+	             minWidth: 100,
+	             height: 50,
+	             child: Text('Save as Template'),
+	           ),
+	           SizedBox(height: 30),
+	           MaterialButton(
+	             color: Colors.blue,
+	             textColor: Colors.white,
+	             onPressed: _showShareOptions,
+	             minWidth: 100,
+	             height: 50,
+	             child: Text('Share Quote'),
+	           )
+	         ],
+	       )
+	     )
 		);
 	}
 }

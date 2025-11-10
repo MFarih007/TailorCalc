@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:convert';
@@ -38,14 +39,8 @@ class PriceDatabase {
             templateName TEXT NOT NULL,
             outfitName TEXT NOT NULL,
             category TEXT NOT NULL,
-            fabric REAL NOT NULL,
-            lining REAL NOT NULL,
-            accessories REAL NOT NULL,
-            laborHours REAL NOT NULL,
-            laborRate REAL NOT NULL,
-            transportMisc REAL NOT NULL,
-            overhead REAL NOT NULL,
-            profitMarginPct REAL NOT NULL,
+            currency TEXT NOT NULL,
+            inputs TEXT NOT NULL,
             createdAt TEXT NOT NULL,
             updatedAt TEXT NOT NULL
           )''');
@@ -58,14 +53,8 @@ class PriceDatabase {
               templateName TEXT NOT NULL,
               outfitName TEXT NOT NULL,
               category TEXT NOT NULL,
-              fabric REAL NOT NULL,
-              lining REAL NOT NULL,
-              accessories REAL NOT NULL,
-              laborHours REAL NOT NULL,
-              laborRate REAL NOT NULL,
-              transportMisc REAL NOT NULL,
-              overhead REAL NOT NULL,
-              profitMarginPct REAL NOT NULL,
+              currency TEXT NOT NULL,
+              inputs TEXT NOT NULL,
               createdAt TEXT NOT NULL,
               updatedAt TEXT NOT NULL
             )''');
@@ -90,14 +79,8 @@ class PriceDatabase {
             templateName TEXT NOT NULL,
             outfitName TEXT NOT NULL,
             category TEXT NOT NULL,
-            fabric REAL NOT NULL,
-            lining REAL NOT NULL,
-            accessories REAL NOT NULL,
-            laborHours REAL NOT NULL,
-            laborRate REAL NOT NULL,
-            transportMisc REAL NOT NULL,
-            overhead REAL NOT NULL,
-            profitMarginPct REAL NOT NULL,
+            currency TEXT NOT NULL,
+            inputs TEXT NOT NULL,
             createdAt TEXT NOT NULL,
             updatedAt TEXT NOT NULL
           )''');
@@ -148,7 +131,7 @@ class PriceDatabase {
         'category': record.category,
         'currency': record.currency,
         'inputs': inputsJson,
-        'outputs': outputsJson,
+        'outputs': outputsJson, // Store in 'outputs' field to match database schema
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -163,19 +146,13 @@ class PriceDatabase {
     );
 
     return templates.map((row) {
+      final inputsJson = jsonDecode(row['inputs'] as String) as Map<String, dynamic>;
       return Template.fromJson({
         'id': row['id'],
         'templateName': row['templateName'],
         'outfitName': row['outfitName'],
         'category': row['category'],
-        'fabric': row['fabric'],
-        'lining': row['lining'],
-        'accessories': row['accessories'],
-        'laborHours': row['laborHours'],
-        'laborRate': row['laborRate'],
-        'transportMisc': row['transportMisc'],
-        'overhead': row['overhead'],
-        'profitMarginPct': row['profitMarginPct'],
+        'inputs': inputsJson,
         'createdAt': row['createdAt'],
         'updatedAt': row['updatedAt'],
       });
@@ -184,6 +161,8 @@ class PriceDatabase {
 
   Future<int> insertTemplate(Template template) async {
     final db = await database;
+
+    final inputsJson = jsonEncode(template.inputs.toJson());
     
     return await db.insert(
       'Templates',
@@ -191,14 +170,8 @@ class PriceDatabase {
         'templateName': template.templateName,
         'outfitName': template.outfitName,
         'category': template.category,
-        'fabric': template.fabric,
-        'lining': template.lining,
-        'accessories': template.accessories,
-        'laborHours': template.laborHours,
-        'laborRate': template.laborRate,
-        'transportMisc': template.transportMisc,
-        'overhead': template.overhead,
-        'profitMarginPct': template.profitMarginPct,
+        'currency': template.currency,
+        'inputs': inputsJson,
         'createdAt': template.createdAt.toIso8601String(),
         'updatedAt': template.updatedAt.toIso8601String(),
       },
@@ -208,6 +181,8 @@ class PriceDatabase {
 
   Future<int> updateTemplate(Template template) async {
     final db = await database;
+
+    final inputsJson = jsonEncode(template.inputs.toJson());
     
     return await db.update(
       'Templates',
@@ -215,14 +190,7 @@ class PriceDatabase {
         'templateName': template.templateName,
         'outfitName': template.outfitName,
         'category': template.category,
-        'fabric': template.fabric,
-        'lining': template.lining,
-        'accessories': template.accessories,
-        'laborHours': template.laborHours,
-        'laborRate': template.laborRate,
-        'transportMisc': template.transportMisc,
-        'overhead': template.overhead,
-        'profitMarginPct': template.profitMarginPct,
+        'inputs': inputsJson,
         'updatedAt': DateTime.now().toIso8601String(),
       },
       where: 'id = ?',
