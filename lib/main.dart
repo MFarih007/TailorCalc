@@ -57,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final PriceDatabase _database = PriceDatabase();
   int _totalJobs = 0;
   double _avgProfitMargin = 0;
+  // int currentIndex = 0;
 
   @override
   void initState() {
@@ -199,6 +200,58 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         ]
       ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   type: BottomNavigationBarType.fixed,
+      //   backgroundColor: Colors.blue,
+      //   selectedItemColor: Colors.white,
+      //   unselectedItemColor: Colors.white70,
+      //   currentIndex: currentIndex,
+      //   onTap: (value) => setState(() {
+      //     currentIndex = value;
+
+      //     switch (currentIndex) {
+      //       case 1:
+      //       Navigator.push(
+      //         context,
+      //         MaterialPageRoute(
+      //           builder: (_) => NewCalcPage()
+      //         )
+      //       ).then((_) => _loadStats());
+      //       case 2:
+      //       Navigator.push(
+      //         context,
+      //         MaterialPageRoute(
+      //           builder: (_) => TemplateLibraryPage()
+      //         )
+      //       ).then((_) => _loadStats());
+      //       case 3:
+      //       Navigator.push(
+      //         context,
+      //         MaterialPageRoute(
+      //           builder: (_) => PricingHistoryPage()
+      //         )
+      //       ).then((_) => _loadStats());
+      //     }
+      //   }),
+      //   items: const [
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.home),
+      //       label: 'Home',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.add),
+      //       label: 'New Calc',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.folder),
+      //       label: 'Templates',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.history),
+      //       label: 'History',
+      //     ),
+      //   ],
+      // ),
     );
   }
 }
