@@ -42,9 +42,11 @@ class SettingsHelper {
   // Get default profit margin percentage (handles String/num)
   static double getDefaultMargin() {
     final value = Settings.getValue<String>(defaultMarginKey);
-    if (value == null) return defaultMargin;
+    if (value == null) {
+      return defaultMargin;
+    }
     else {
-      final parsed = double.tryParse(value!);
+      final parsed = double.tryParse(value);
       return parsed!;
     }
   }
