@@ -131,7 +131,7 @@ class _NewCalcPageState extends State<NewCalcPage> {
     input = widget.initialInput ?? {
       'outfitName': '',
       'category': '',
-      'profitMarginPct': 0,
+      'profitMarginPct': 20.0,
     };
     
     // If initialInput contains comprehensive template data, load it

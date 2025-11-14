@@ -446,7 +446,7 @@ Generated with $brandName
     }
 
     try {
-
+      debugPrint((input['profitMarginPct'] as num?)?.toDouble().toString() ?? 'No profit margin found');
       final inputs = Inputs(
         labors: input['tailors'], // Labor/tailor data
         materials: input['materials'], // Material items
