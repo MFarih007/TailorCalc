@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -9,6 +10,7 @@ import 'package:tailor_calc/utils/settings_helper.dart';
 import 'package:tailor_calc/database/price_database.dart';
 import 'package:tailor_calc/models/pricinghistoryrecord.dart';
 import 'package:tailor_calc/models/template.dart';
+import 'package:tailor_calc/pages/pdf_viewer.dart';
 
 class ResultPage extends StatefulWidget {
 	const ResultPage({super.key, required this.result, this.input});
@@ -197,6 +199,10 @@ Generated with $brandName
     final currency = SettingsHelper.getCurrency();
     final preparedBy = SettingsHelper.getPreparedBy();
     final brandName = SettingsHelper.getBrandName();
+
+    final fontData = await rootBundle.load('assets/fonts/NotoSans-Regular.ttf');
+    final myFont = pw.Font.ttf(fontData);
+
     final date = DateFormat('dd/MM/yyyy').format(DateTime.now());
     
     pdf.addPage(
@@ -212,7 +218,7 @@ Generated with $brandName
                   'Tailoring Quote',
                   style: pw.TextStyle(
                     fontSize: 24,
-                    fontWeight: pw.FontWeight.bold,
+                    fontWeight: pw.FontWeight.bold
                   ),
                 ),
                 pw.SizedBox(height: 30),
@@ -237,12 +243,12 @@ Generated with $brandName
                   ),
                 ),
                 pw.SizedBox(height: 10),
-                pw.Text('Material Cost: ${_formatCurrency(materialsTotal)}'),
-                pw.Text('Transport Cost: ${_formatCurrency(transportTotal)}'),
-                pw.Text('Labor Cost: ${_formatCurrency(laborTotal)}'),
-                pw.Text('Overhead Cost: ${_formatCurrency(overheadTotal)}'),
-                pw.Text('Total Cost: ${_formatCurrency(materialsTotal + transportTotal + laborTotal + overheadTotal)}'),
-                pw.Text('Profit (${profitMarginPct.toStringAsFixed(1)}%): ${_formatCurrency(profitAmount)}'),
+                pw.Text('Material Cost: ${_formatCurrency(materialsTotal)}', style: pw.TextStyle(font: myFont)),
+                pw.Text('Transport Cost: ${_formatCurrency(transportTotal)}', style: pw.TextStyle(font: myFont)),
+                pw.Text('Labor Cost: ${_formatCurrency(laborTotal)}', style: pw.TextStyle(font: myFont)),
+                pw.Text('Overhead Cost: ${_formatCurrency(overheadTotal)}', style: pw.TextStyle(font: myFont)),
+                pw.Text('Total Cost: ${_formatCurrency(materialsTotal + transportTotal + laborTotal + overheadTotal)}', style: pw.TextStyle(font: myFont)),
+                pw.Text('Profit (${profitMarginPct.toStringAsFixed(1)}%): ${_formatCurrency(profitAmount)}', style: pw.TextStyle(font: myFont)),
                 pw.SizedBox(height: 30),
                 pw.Divider(),
                 pw.SizedBox(height: 10),
@@ -251,6 +257,7 @@ Generated with $brandName
                   style: pw.TextStyle(
                     fontSize: 20,
                     fontWeight: pw.FontWeight.bold,
+                    font: myFont
                   ),
                 ),
                 pw.Text(
@@ -258,6 +265,7 @@ Generated with $brandName
                   style: pw.TextStyle(
                     fontSize: 24,
                     fontWeight: pw.FontWeight.bold,
+                    font: myFont
                   ),
                 ),
                 if (preparedBy.isNotEmpty) ...[
@@ -318,6 +326,31 @@ Generated with $brandName
     }
   }
 
+  Future<void> _viewPDF() async {
+    try {
+      final pdfFile = await _generatePDF();
+      final fileName = 'tailoring_quote_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PdfViewerPage(
+              file: pdfFile,
+              fileName: fileName,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error generating PDF: $e')),
+        );
+      }
+    }
+  }
+
   void _showShareOptions() {
     showModalBottomSheet(
       context: context,
@@ -340,6 +373,14 @@ Generated with $brandName
                 onTap: () {
                   Navigator.pop(context);
                   _shareAsPDF();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.preview),
+                title: Text('View PDF'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _viewPDF();
                 },
               ),
               ListTile(
@@ -639,3 +680,4 @@ Generated with $brandName
 		);
 	}
 }
+

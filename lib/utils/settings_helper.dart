@@ -16,11 +16,11 @@ class SettingsHelper {
 
   // Currency symbols map
   static const Map<String, String> currencySymbols = {
-    'NGN': '₦',
-    'USD': '\$',
-    'EUR': '€',
-    'GBP': '£',
-    'GHS': '₵',
+    'NGN': '\u{20A6}', // ₦
+    'USD': '\u{0024}',  // $
+    'EUR': '\u{20AC}',  // €
+    'GBP': '\u{00A3}',  // £
+    'GHS': '\u{20B5}',  // ₵
   };
 
   // Get currency
@@ -36,7 +36,7 @@ class SettingsHelper {
   // Get currency symbol
   static String getCurrencySymbol() {
     final currency = getCurrency();
-    return currencySymbols[currency] ?? '₦';
+    return currencySymbols[currency] ?? '\u{20A6}'; // Default to ₦
   }
 
   // Get default profit margin percentage (handles String/num)
